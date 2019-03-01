@@ -109,11 +109,35 @@ public final class MifareUtils {
             throws CardException {
         for (int sectorIndex = 0; sectorIndex < MIFARE_1K_SECTOR_COUNT; sectorIndex++) {
             // For each sector...
-            for (int blockIndex = 0; blockIndex < MIFARE_1K_PER_SECTOR_BLOCK_COUNT; blockIndex++) {
-                // For each block...
-                dumpMifareClassic1KBlock(reader, card, sectorIndex, blockIndex, keys);
-            }
+			dumpMifareClassic1KCardSector(reader, card, sectorIndex, keys);
         }
+    }
+    
+    /**
+     * Dumps a sector of a Mifare Classic 1K card.
+     * @param reader the reader
+     * @param card the card
+     * @param keys the keys to be tested for reading
+     */
+    public static void dumpMifareClassic1KCardSector(MfReaderWriter reader, MfCard card, int sectorId, List<String> keys)
+            throws CardException {
+		for (int blockIndex = 0; blockIndex < MIFARE_1K_PER_SECTOR_BLOCK_COUNT; blockIndex++) {
+			// For each block...
+			dumpMifareClassic1KCardSectorBlock(reader, card, sectorId, blockIndex, keys);
+		}
+    }
+    
+    /**
+     * Dumps a block of a sector of a Mifare Classic 1K card.
+     * @param reader the reader
+	 * @param sector the sector to read
+	 * @param block the block to read
+     * @param card the card
+     * @param keys the keys to be tested for reading
+     */
+    public static void dumpMifareClassic1KCardSectorBlock(MfReaderWriter reader, MfCard card, int sectorId, int blockId, List<String> keys)
+            throws CardException {
+		dumpMifareClassic1KBlock(reader, card, sectorId, blockId, keys);
     }
     
     /**

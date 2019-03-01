@@ -54,6 +54,14 @@ public class Acr122Manager {
             case "--dump":
                 dumpCards(args);
                 break;
+			case "-ds":
+			case "-dump-sector":
+				dumpCardSector(args);
+				break;
+			case "-dsb":
+			case "-dump-sector-block":
+				dumpCardSectorBlock(args);
+				break;
             case "-w":
             case "--write":
                 writeToCards(args);
@@ -131,6 +139,92 @@ public class Acr122Manager {
     }
     
     /**
+     * Dumps card sector.
+     * @param args the arguments of the dump command
+     */
+    private static void dumpCardSector(String... args) throws IOException {
+        // Checking arguments
+        if (args.length < 2) {
+            printHelpAndExit();
+        }
+		
+		final String sector = args[1];
+		
+		final int sectorId = Integer.parseInt(sector);
+		
+        // Building the list of keys
+        final List<String> keys = new ArrayList<>();
+        for (int i = 2; i < args.length; i++) {
+            String k = args[i].toUpperCase();
+            if (MifareUtils.isValidMifareClassic1KKey(k)) {
+                keys.add(k);
+            }
+        }
+        // Adding the common keys
+        keys.addAll(MifareUtils.COMMON_MIFARE_CLASSIC_1K_KEYS);
+        
+        // Card listener for dump
+        MfCardListener listener = new MfCardListener() {
+            @Override
+            public void cardDetected(MfCard mfCard, MfReaderWriter mfReaderWriter) throws IOException {
+                printCardInfo(mfCard);
+                try {
+                    MifareUtils.dumpMifareClassic1KCardSector(mfReaderWriter, mfCard, sectorId, keys);
+                } catch (CardException ce) {
+                    System.out.println("Card removed or not present.");
+                }
+            }
+        };
+        
+        // Start listening
+        listen(listener);
+    }
+    
+    /**
+     * Dumps card block of sector.
+     * @param args the arguments of the dump command
+     */
+    private static void dumpCardSectorBlock(String... args) throws IOException {
+		// Checking arguments
+        if (args.length < 2) {
+            printHelpAndExit();
+        }
+		
+		final String sector = args[1];
+		final String block = args[2];
+		
+		final int sectorId = Integer.parseInt(sector);
+        final int blockId = Integer.parseInt(block);
+		
+        // Building the list of keys
+        final List<String> keys = new ArrayList<>();
+        for (int i = 1; i < args.length; i++) {
+            String k = args[i].toUpperCase();
+            if (MifareUtils.isValidMifareClassic1KKey(k)) {
+                keys.add(k);
+            }
+        }
+        // Adding the common keys
+        keys.addAll(MifareUtils.COMMON_MIFARE_CLASSIC_1K_KEYS);
+        
+        // Card listener for dump
+        MfCardListener listener = new MfCardListener() {
+            @Override
+            public void cardDetected(MfCard mfCard, MfReaderWriter mfReaderWriter) throws IOException {
+                printCardInfo(mfCard);
+                try {
+                    MifareUtils.dumpMifareClassic1KCardSectorBlock(mfReaderWriter, mfCard, sectorId, blockId, keys);
+                } catch (CardException ce) {
+                    System.out.println("Card removed or not present.");
+                }
+            }
+        };
+        
+        // Start listening
+        listen(listener);
+    }
+    
+    /**
      * Writes to cards.
      * @param args the arguments of the write command
      */
@@ -184,10 +278,14 @@ public class Acr122Manager {
         sb.append("Options:\n");
         sb.append("\t-h, --help\t\t\tshow this help message and exit\n");
         sb.append("\t-d, --dump [KEYS...]\t\tdump Mifare Classic 1K cards using KEYS\n");
+        sb.append("\t-ds, --dump-sector S [KEYS...]\t\tdump sector S of a Mifare Classic 1K cards using KEYS\n");
+        sb.append("\t-dsb, --dump-sector-block S B [KEYS...]\t\tdump block B of sector S of a Mifare Classic 1K cards using KEYS\n");
         sb.append("\t-w, --write S B KEY DATA\twrite DATA to sector S, block B of Mifare Classic 1K cards using KEY\n");
         
         sb.append("Examples:\n");
         sb.append("\tjava -jar ").append(jarName).append(" --dump FF00A1A0B000 FF00A1A0B001 FF00A1A0B099\n");
+        sb.append("\tjava -jar ").append(jarName).append(" --dump-sector 13 FF00A1A0B000 FF00A1A0B001 FF00A1A0B099\n");
+        sb.append("\tjava -jar ").append(jarName).append(" --dump-sector-block 13 2 FF00A1A0B000 FF00A1A0B001 FF00A1A0B099\n");
         sb.append("\tjava -jar ").append(jarName).append(" --write 13 2 FF00A1A0B001 FFFFFFFFFFFF00000000060504030201");
         
         System.out.println(sb.toString());

@@ -4,7 +4,7 @@ Here is a simple Java program to read/write Mifare RFID tags with an ACR122U dev
 
 ### Features
 
-  * Read/dump Mifare Classic tags
+  * Read/dump Mifare Classic tags (full card, specific sector or specific block)
   * Write to Mifare Classic tags (block-wise)
   * ACR122U compliant
   * Supported tags: Mifare Classic 1K (only)
@@ -23,11 +23,15 @@ Here is a simple Java program to read/write Mifare RFID tags with an ACR122U dev
 ~$ java -jar ./acr122urw.jar -h
 Usage: java -jar acr122urw.jar [option]
 Options:
-    -h, --help                      show this help message and exit
-    -d, --dump [KEYS...]            dump Mifare Classic 1K cards using KEYS
-    -w, --write S B KEY DATA        write DATA to sector S, block B of Mifare Classic 1K cards using KEY
+    -h, --help                      		show this help message and exit
+    -d, --dump [KEYS...]            		dump Mifare Classic 1K cards using KEYS
+	-ds, --dump-sector S [KEYS...]          dump sector S of a Mifare Classic 1K cards using KEYS
+	-dsb, --dump-sector-block S B [KEYS...] dump block B of sector S of a Mifare Classic 1K cards using KEYS
+    -w, --write S B KEY DATA        		write DATA to sector S, block B of Mifare Classic 1K cards using KEY
 Examples:
     java -jar acr122urw.jar --dump FF00A1A0B000 FF00A1A0B001 FF00A1A0B099
+	java -jar acr122urw.jar --dump-sector 13 FF00A1A0B000 FF00A1A0B001 FF00A1A0B099
+	java -jar acr122urw.jar --dump-sector-block 13 2 FF00A1A0B000 FF00A1A0B001 FF00A1A0B099
     java -jar acr122urw.jar --write 13 2 FF00A1A0B001 FFFFFFFFFFFF00000000060504030201
 ```
 
